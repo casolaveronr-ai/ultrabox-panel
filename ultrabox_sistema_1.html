@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultrabox Cargo — Sistema Operativo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/1.119.0/iconfont/tabler-icons.min.css">
+<style>
+:root{--navy:#1B2A4A;--navy-dark:#0F1C33;--gold:#B8882A;--gold-light:#D4A843;--gold-pale:#FDF3E0;--bg:#F2F4F7;--card:#fff;--border:#E2E6ED;--text:#1B2A4A;--muted:#7A8499;--success:#2E7D4F;--success-bg:#E8F5EE;--warning:#A06000;--warning-bg:#FFF4E0;--danger:#B02020;--danger-bg:#FDEAEA;--info:#1B4A8A;--info-bg:#E6EEF8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy-dark);padding:20px}
+.login-card{background:#fff;border-radius:16px;padding:40px;width:400px;max-width:100%}
+.login-logo{display:flex;align-items:baseline;margin-bottom:4px}
+.lu{color:var(--navy);font-size:24px;font-weight:600;letter-spacing:.05em}
+.lb{color:var(--gold-light);font-size:24px;font-weight:600}
+.lc{color:var(--gold);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:28px;display:block}
+.login-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.fl{font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fi{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fff;outline:none;transition:border .15s;margin-bottom:14px}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,136,42,.1)}
+.btn-login{width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.btn-login:hover{background:var(--gold-light)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+.login-err{background:var(--danger-bg);color:var(--danger);border-radius:7px;padding:10px 12px;font-size:12px;margin-top:12px;display:none}
+.login-footer{margin-top:20px;text-align:center;font-size:11px;color:var(--muted)}
+
+/* APP */
+.app-wrap{display:none;height:100vh;overflow:hidden;flex-direction:row}
+.app-wrap.visible{display:flex}
+.sidebar{width:220px;background:var(--navy-dark);display:flex;flex-direction:column;height:100vh;flex-shrink:0}
+.s-logo{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.l1{display:flex;align-items:baseline}.slu{color:#fff;font-size:18px;font-weight:600}.slb{color:var(--gold-light);font-size:18px;font-weight:600}
+.slc{color:var(--gold);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-top:2px;display:block}
+.sld{width:36px;height:1px;background:var(--gold);margin-top:4px;opacity:.5}
+.ng{padding:14px 18px 4px;font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.12em}
+.nb{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-left:2px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif}
+.nb:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.06)}
+.nb.active{color:#fff;background:rgba(255,255,255,.09);border-left-color:var(--gold-light)}
+.nb i{font-size:17px}.bcp{margin-left:auto;background:var(--gold);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sf{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.uinfo{display:flex;align-items:center;gap:10px}
+.uav{width:32px;height:32px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--navy-dark);flex-shrink:0}
+.un{font-size:12px;color:rgba(255,255,255,.7);font-weight:500}.ur{font-size:10px;color:rgba(255,255,255,.3)}
+.logout-btn{display:flex;align-items:center;gap:6px;padding:6px 0;color:rgba(255,255,255,.35);font-size:11px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:color .15s}
+.logout-btn:hover{color:rgba(255,255,255,.7)}
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+.gs{height:2px;background:linear-gradient(90deg,var(--navy-dark) 0%,var(--gold) 55%,var(--gold-light) 100%);flex-shrink:0}
+.tb{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.tt{font-size:15px;font-weight:600;color:var(--navy)}.td{font-size:12px;color:var(--muted);margin-left:10px}
+.tbr{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
+.btn i{font-size:14px}
+.bg{background:var(--gold);color:#fff}.bg:hover{background:var(--gold-light)}
+.bo{background:transparent;color:var(--navy);border:1px solid var(--border)}.bo:hover{background:var(--bg)}
+.bgh{background:transparent;color:var(--muted);border:1px solid var(--border)}.bgh:hover{background:var(--bg);color:var(--text)}
+.bs{background:var(--success-bg);color:var(--success);border:1px solid #b8ddc8}
+.bd{background:var(--danger-bg);color:var(--danger);border:1px solid #f0c0c0}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.content::-webkit-scrollbar{width:5px}.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+.screen{display:none;animation:fi .2s ease}.screen.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.mr{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold)}
+.ml{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.mv{font-size:26px;font-weight:600;color:var(--navy);font-family:'DM Mono',monospace}
+.mv.ac{color:var(--gold)}.mv.gr{color:var(--success)}.mv.re{color:var(--danger)}.mv.bl{color:var(--info)}
+.ms{font-size:11px;color:var(--muted);margin-top:3px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.ch{padding:12px 16px;border-bottom:1px solid var(--border);background:#FAFBFD;display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:7px}.ct i{color:var(--gold);font-size:16px}
+.ca{display:flex;gap:6px}
+.th{display:flex;padding:8px 16px;background:#F5F7FA;border-bottom:1px solid var(--border)}
+.thc{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.tr{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid #F0F2F5;font-size:12.5px;transition:background .1s;cursor:pointer}
+.tr:last-child{border-bottom:none}.tr:hover{background:#FAFBFD}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;display:inline-flex;align-items:center}
+.bsu{background:var(--success-bg);color:var(--success)}.bwa{background:var(--warning-bg);color:var(--warning)}
+.bda{background:var(--danger-bg);color:var(--danger)}.bin{background:var(--info-bg);color:var(--info)}
+.bgo{background:var(--gold-pale);color:var(--gold)}.bgr{background:#F0F2F5;color:var(--muted)}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.an{background:#DDE4F0;color:var(--navy)}.ago{background:var(--gold-pale);color:var(--gold)}.agr{background:#DCF0E5;color:var(--success)}.abl{background:#DCE8F5;color:var(--info)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dg{background:#3BAA55;box-shadow:0 0 0 2px #dcf0e5}.da{background:#D4900A;box-shadow:0 0 0 2px #ffeec0}.dgr{background:#B0B8C8;box-shadow:0 0 0 2px #e8ebf0}
+.tc{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+.tf{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#F5F7FA;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.tfv{font-size:14px;font-weight:600;color:var(--navy)}
+.mo{display:none;position:fixed;inset:0;background:rgba(15,28,51,.55);z-index:100;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.md{background:var(--card);border-radius:14px;width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(15,28,51,.25);overflow:hidden;animation:mi .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes mi{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD;position:sticky;top:0}
+.mti{font-size:14px;font-weight:600;color:var(--navy)}.mc2{background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px}
+.mb{padding:20px}.mf{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:#FAFBFD;position:sticky;bottom:0}
+.fg{margin-bottom:14px}.flab{font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fii,.fs{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fff;outline:none;transition:border .15s}
+.fii:focus,.fs:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,136,42,.1)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fta{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);resize:vertical;min-height:70px;outline:none}
+.fta:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,136,42,.1)}
+.tabb{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 16px;background:#FAFBFD}
+.tabbtn{padding:9px 14px;font-size:12px;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:-1px}
+.tabbtn.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tabc{display:none;padding:14px 16px}.tabc.active{display:block}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:8px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s ease;border-left:3px solid var(--gold)}
+.toast.show{transform:translateY(0);opacity:1}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}.empty i{font-size:40px;opacity:.3;margin-bottom:8px;display:block}.empty p{font-size:13px}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.info-banner{background:var(--gold-pale);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--navy);margin-bottom:14px;display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="login-logo"><span class="lu">ULTRA</span><span class="lb">BOX</span></div>
+    <span class="lc">— Cargo · Panel Operativo —</span>
+    <div class="login-title">Iniciá sesión</div>
+    <div class="login-sub">Solo personal autorizado de Ultrabox Cargo</div>
+    <label class="fl">Correo electrónico</label>
+    <input class="fi" type="email" id="login-email" placeholder="tu@ultrabox.com.py">
+    <label class="fl">Contraseña</label>
+    <input class="fi" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Ingresar al sistema</button>
+    <div class="login-err" id="login-err">Email o contraseña incorrectos. Verificá tus datos.</div>
+    <div class="login-footer">Ultrabox Cargo © 2026 · Solo uso interno</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap" id="app-wrap">
+  <nav class="sidebar">
+    <div class="s-logo">
+      <div class="l1"><span class="slu">ULTRA</span><span class="slb">BOX</span></div>
+      <span class="slc">— Cargo —</span><div class="sld"></div>
+    </div>
+    <div class="ng">Operaciones</div>
+    <button class="nb active" onclick="nav('pedidos',this)"><i class="ti ti-package"></i>Pedidos<span class="bcp" id="bc-p">0</span></button>
+    <button class="nb" onclick="nav('motoristas',this)"><i class="ti ti-motorbike"></i>Motoristas</button>
+    <button class="nb" onclick="nav('asistencia',this)"><i class="ti ti-clock"></i>Asistencia</button>
+    <button class="nb" onclick="nav('cronograma',this)"><i class="ti ti-calendar"></i>Cronograma</button>
+    <div class="ng">Administración</div>
+    <button class="nb" onclick="nav('reportes',this)"><i class="ti ti-chart-bar"></i>Reportes</button>
+    <button class="nb" onclick="nav('locales',this)"><i class="ti ti-building-store"></i>Locales</button>
+    <div class="ng">Vistas</div>
+    <button class="nb" onclick="nav('mview',this)"><i class="ti ti-device-mobile"></i>Vista motorista</button>
+    <button class="nb" onclick="nav('lview',this)"><i class="ti ti-building-store"></i>Vista local</button>
+    <div class="sf">
+      <div class="uinfo">
+        <div class="uav" id="user-av">?</div>
+        <div><div class="un" id="user-name">Cargando...</div><div class="ur">Super Admin</div></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:14px"></i>Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="gs"></div>
+    <div class="tb">
+      <div style="display:flex;align-items:center">
+        <span class="tt" id="ptitle">Pedidos del día</span>
+        <span class="td" id="pdate"></span>
+      </div>
+      <div class="tbr">
+        <button class="btn bo" onclick="openM('mfiltro')"><i class="ti ti-filter"></i>Filtrar</button>
+        <button class="btn bg" onclick="openM('mpedido')"><i class="ti ti-plus"></i>Nuevo pedido</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- PEDIDOS -->
+      <div class="screen active" id="screen-pedidos">
+        <div class="mr">
+          <div class="mc"><div class="ml">Total hoy</div><div class="mv" id="m1">—</div><div class="ms">pedidos</div></div>
+          <div class="mc"><div class="ml">En curso</div><div class="mv bl" id="m2">—</div><div class="ms">en camino</div></div>
+          <div class="mc"><div class="ml">Entregados</div><div class="mv gr" id="m3">—</div><div class="ms">completados</div></div>
+          <div class="mc"><div class="ml">Sin asignar</div><div class="mv re" id="m4">—</div><div class="ms">requieren atención</div></div>
+        </div>
+        <div class="tc">
+          <div class="card">
+            <div class="ch"><span class="ct"><i class="ti ti-list-check"></i>Pedidos activos</span>
+              <div class="ca">
+                <button class="btn bgh" style="font-size:11px;padding:4px 10px" onclick="filtT('gastro')">Gastro</button>
+                <button class="btn bgh" style="font-size:11px;padding:4px 10px" onclick="filtT('tienda')">Tiendas</button>
+                <button class="btn bgh" style="font-size:11px;padding:4px 10px" onclick="filtT('todos')">Todos</button>
+              </div>
+            </div>
+            <div class="th">
+              <span class="thc" style="flex:0 0 52px">ID</span>
+              <span class="thc" style="flex:1.2">Local</span>
+              <span class="thc" style="flex:1.3">Cliente</span>
+              <span class="thc" style="flex:1">Motorista</span>
+              <span class="thc" style="flex:0 0 80px;text-align:right">Estado</span>
+            </div>
+            <div id="lp"><div class="loading">Cargando pedidos...</div></div>
+            <div class="tf"><span id="pc">—</span></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="ct"><i class="ti ti-motorbike"></i>En turno ahora</span></div>
+            <div id="lmt"><div class="loading">Cargando...</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOTORISTAS -->
+      <div class="screen" id="screen-motoristas">
+        <div class="mr">
+          <div class="mc"><div class="ml">Activos hoy</div><div class="mv" id="ma1">—</div></div>
+          <div class="mc"><div class="ml">Pedidos totales</div><div class="mv" id="ma2">—</div></div>
+          <div class="mc"><div class="ml">Horas trabajadas</div><div class="mv ac" id="ma3">—</div></div>
+          <div class="mc"><div class="ml">A liquidar hoy</div><div class="mv gr" id="ma4">—</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct"><i class="ti ti-users"></i>Equipo de motoristas</span>
+            <button class="btn bg" onclick="openM('mmot')"><i class="ti ti-plus"></i>Agregar</button>
+          </div>
+          <div class="th">
+            <span class="thc" style="flex:0 0 12px"></span><span class="thc" style="flex:0 0 38px"></span>
+            <span class="thc" style="flex:1.5">Nombre</span><span class="thc" style="flex:.9">Tipo</span>
+            <span class="thc" style="flex:1.1">Local</span><span class="thc" style="flex:.6;text-align:center">Ped.</span>
+            <span class="thc" style="flex:.7;text-align:center">Horas</span><span class="thc" style="flex:.9;text-align:right">A cobrar</span>
+            <span class="thc" style="flex:0 0 72px;text-align:right">Estado</span>
+          </div>
+          <div id="lm"><div class="loading">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- ASISTENCIA -->
+      <div class="screen" id="screen-asistencia">
+        <div class="mr">
+          <div class="mc"><div class="ml">Presentes hoy</div><div class="mv" id="as1">—</div></div>
+          <div class="mc"><div class="ml">Horas acumuladas</div><div class="mv ac" id="as2">—</div></div>
+          <div class="mc"><div class="ml">Liquidación diaria</div><div class="mv gr" id="as3">—</div></div>
+          <div class="mc"><div class="ml">Liquidación semanal</div><div class="mv gr" id="as4">—</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct"><i class="ti ti-clock"></i>Registro asistencia — hoy</span></div>
+          <div class="th">
+            <span class="thc" style="flex:0 0 38px"></span><span class="thc" style="flex:1.5">Motorista</span>
+            <span class="thc" style="flex:1.1">Local</span><span class="thc" style="flex:.7;text-align:center">Entrada</span>
+            <span class="thc" style="flex:.7;text-align:center">Salida</span><span class="thc" style="flex:.6;text-align:center">Horas</span>
+            <span class="thc" style="flex:.6;text-align:center">Ped.</span><span class="thc" style="flex:.9;text-align:right">A cobrar</span>
+            <span class="thc" style="flex:0 0 72px;text-align:right">Pago</span>
+          </div>
+          <div id="la"><div class="loading">Cargando...</div></div>
+          <div class="tf"><span>Total del día</span><span class="tfv" id="tdtotal">—</span></div>
+        </div>
+      </div>
+
+      <!-- CRONOGRAMA -->
+      <div class="screen" id="screen-cronograma">
+        <div class="card">
+          <div class="ch"><span class="ct"><i class="ti ti-calendar"></i>Cronograma semanal</span>
+            <button class="btn bg" onclick="openM('mturno')"><i class="ti ti-plus"></i>Asignar turno</button>
+          </div>
+          <div class="tabb">
+            <button class="tabbtn active" onclick="stab('tlun',this)">Lun</button>
+            <button class="tabbtn" onclick="stab('tmar',this)">Mar</button>
+            <button class="tabbtn" onclick="stab('tmie',this)">Mié</button>
+            <button class="tabbtn" onclick="stab('tjue',this)">Jue</button>
+            <button class="tabbtn" onclick="stab('tvie',this)">Vie</button>
+            <button class="tabbtn" onclick="stab('tsab',this)">Sáb</button>
+            <button class="tabbtn" onclick="stab('tdom',this)">Dom</button>
+          </div>
+          <div id="tlun" class="tabc active"><div id="crono-lun"><div class="loading">Cargando...</div></div></div>
+          <div id="tmar" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+          <div id="tmie" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+          <div id="tjue" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+          <div id="tvie" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+          <div id="tsab" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+          <div id="tdom" class="tabc"><div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos</p></div></div>
+        </div>
+      </div>
+
+      <!-- REPORTES -->
+      <div class="screen" id="screen-reportes">
+        <div class="mr">
+          <div class="mc"><div class="ml">Pedidos este mes</div><div class="mv" id="rp1">—</div></div>
+          <div class="mc"><div class="ml">Facturado locales</div><div class="mv ac" id="rp2">—</div></div>
+          <div class="mc"><div class="ml">Pagado motoristas</div><div class="mv" id="rp3">—</div></div>
+          <div class="mc"><div class="ml">Margen operativo</div><div class="mv gr" id="rp4">—</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct"><i class="ti ti-file-invoice"></i>Cierre por local</span>
+            <button class="btn bo" onclick="exportCSV()"><i class="ti ti-download"></i>Exportar CSV</button>
+          </div>
+          <div class="th">
+            <span class="thc" style="flex:1.5">Local</span><span class="thc" style="flex:.6;text-align:center">Pedidos</span>
+            <span class="thc" style="flex:.7;text-align:center">Horas</span><span class="thc" style="flex:.8;text-align:center">Tarifa</span>
+            <span class="thc" style="flex:1;text-align:center">Total</span><span class="thc" style="flex:0 0 80px;text-align:right">Estado</span>
+          </div>
+          <div id="lrep"><div class="loading">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- LOCALES -->
+      <div class="screen" id="screen-locales">
+        <div class="card">
+          <div class="ch"><span class="ct"><i class="ti ti-building-store"></i>Locales registrados</span>
+            <button class="btn bg" onclick="openM('mloc')"><i class="ti ti-plus"></i>Nuevo local</button>
+          </div>
+          <div id="lloc"><div class="loading">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- VISTA MOTORISTA -->
+      <div class="screen" id="screen-mview">
+        <div class="info-banner"><i class="ti ti-info-circle" style="color:var(--gold);font-size:16px"></i>
+          <span>Vista del motorista desde su celular. Cada motorista tiene su link único.</span>
+        </div>
+        <div style="max-width:400px;margin:0 auto">
+          <div style="background:var(--navy-dark);border-radius:12px;padding:16px 18px;margin-bottom:14px">
+            <div style="color:rgba(255,255,255,.5);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Seleccioná motorista</div>
+            <select id="sel-mot" onchange="loadMotView()" style="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 10px;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none">
+              <option value="">— elegí un motorista —</option>
+            </select>
+            <div style="color:var(--gold);font-size:11px;margin-top:6px" id="mv-local">—</div>
+          </div>
+          <div id="mv-checkin" style="border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;background:#F5F7FA">
+            <div style="font-size:13px;color:var(--muted)">Seleccioná un motorista</div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Pedidos del turno</div>
+          <div id="mv-pedidos"><div class="empty"><i class="ti ti-package"></i><p>Sin pedidos</p></div></div>
+        </div>
+      </div>
+
+      <!-- VISTA LOCAL -->
+      <div class="screen" id="screen-lview">
+        <div class="info-banner"><i class="ti ti-info-circle" style="color:var(--gold);font-size:16px"></i>
+          <span>Vista del local desde su celular. Carga pedidos en 20 segundos.</span>
+        </div>
+        <div style="max-width:400px;margin:0 auto">
+          <div style="background:var(--navy-dark);border-radius:12px;padding:14px 18px;margin-bottom:14px">
+            <div style="display:flex;align-items:baseline"><span style="color:#fff;font-size:16px;font-weight:600">ULTRA</span><span style="color:var(--gold-light);font-size:16px;font-weight:600">BOX</span></div>
+            <select id="sel-loc" onchange="loadLocView()" style="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 10px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;margin-top:8px">
+              <option value="">— elegí un local —</option>
+            </select>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Nuevo pedido</div>
+            <input class="fii" id="lv-cli" placeholder="Nombre del cliente" style="margin-bottom:8px">
+            <input class="fii" id="lv-dir" placeholder="Dirección de entrega" style="margin-bottom:8px">
+            <select class="fs" id="lv-pago" style="margin-bottom:10px"><option>Efectivo</option><option>Transferencia</option></select>
+            <input class="fii" id="lv-obs" placeholder="Observación (opcional)" style="margin-bottom:10px">
+            <button class="btn bg" style="width:100%;justify-content:center" onclick="pedidoLocal()"><i class="ti ti-send"></i>Enviar pedido</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Mis pedidos de hoy</div>
+            <div id="lv-peds"><div class="empty"><i class="ti ti-package"></i><p>Sin pedidos hoy</p></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+<div class="mo" id="mpedido">
+  <div class="md">
+    <div class="mh"><span class="mti"><i class="ti ti-package" style="color:var(--gold)"></i> Nuevo pedido</span><button class="mc2" onclick="closeM('mpedido')"><i class="ti ti-x"></i></button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="flab">Local</label><select class="fs" id="np-l"><option value="">Seleccionar...</option></select></div>
+        <div class="fg"><label class="flab">Tipo</label><select class="fs" id="np-t"><option value="gastro">Gastronomía</option><option value="tienda">Tienda</option><option value="courier">Courier</option></select></div>
+      </div>
+      <div class="fg"><label class="flab">Cliente</label><input class="fii" id="np-c" placeholder="Nombre del cliente"></div>
+      <div class="fg"><label class="flab">Dirección</label><input class="fii" id="np-d" placeholder="Ej: Av. España 1240, Asunción"></div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Forma de pago</label><select class="fs" id="np-pg"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+        <div class="fg"><label class="flab">Motorista</label><select class="fs" id="np-m"><option value="">Sin asignar</option></select></div>
+      </div>
+      <div class="fg"><label class="flab">Observaciones</label><textarea class="fta" id="np-o" placeholder="Instrucciones especiales..."></textarea></div>
+    </div>
+    <div class="mf"><button class="btn bgh" onclick="closeM('mpedido')">Cancelar</button><button class="btn bg" onclick="savePed()"><i class="ti ti-check"></i>Registrar</button></div>
+  </div>
+</div>
+
+<div class="mo" id="mmot">
+  <div class="md">
+    <div class="mh"><span class="mti"><i class="ti ti-motorbike" style="color:var(--gold)"></i> Agregar motorista</span><button class="mc2" onclick="closeM('mmot')"><i class="ti ti-x"></i></button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="flab">Nombre completo</label><input class="fii" id="nm-n" placeholder="Nombre y apellido"></div>
+        <div class="fg"><label class="flab">Tipo</label><select class="fs" id="nm-t"><option>Contratado</option><option>Freelancer</option></select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Sueldo mensual (Gs)</label><input type="number" class="fii" id="nm-s" placeholder="Ej: 3000000"></div>
+        <div class="fg"><label class="flab">Combustible/mes (Gs)</label><input type="number" class="fii" id="nm-cb" placeholder="Ej: 320000"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Local asignado</label><select class="fs" id="nm-l"><option value="">Libre / rotativo</option></select></div>
+        <div class="fg"><label class="flab">Frecuencia de pago</label><select class="fs" id="nm-f"><option>Semanal</option><option>Quincenal</option><option>Mensual</option><option>Diario</option></select></div>
+      </div>
+      <div class="fg"><label class="flab">Teléfono / WhatsApp</label><input class="fii" id="nm-tel" placeholder="+595 9XX XXX XXX"></div>
+    </div>
+    <div class="mf"><button class="btn bgh" onclick="closeM('mmot')">Cancelar</button><button class="btn bg" onclick="saveMot()"><i class="ti ti-check"></i>Guardar</button></div>
+  </div>
+</div>
+
+<div class="mo" id="mloc">
+  <div class="md">
+    <div class="mh"><span class="mti"><i class="ti ti-building-store" style="color:var(--gold)"></i> Nuevo local</span><button class="mc2" onclick="closeM('mloc')"><i class="ti ti-x"></i></button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="flab">Nombre del local</label><input class="fii" id="nl-n" placeholder="Ej: Yvonás"></div>
+        <div class="fg"><label class="flab">Tipo</label><select class="fs" id="nl-t"><option value="gastro">Gastronomía</option><option value="tienda">Tienda</option></select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Modelo de cobro</label><select class="fs" id="nl-m"><option value="hora">Por hora</option><option value="pedido">Por pedido</option></select></div>
+        <div class="fg"><label class="flab">Tarifa (Gs)</label><input type="number" class="fii" id="nl-tf" placeholder="Ej: 30000"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Fee mensual (Gs)</label><input type="number" class="fii" id="nl-fe" placeholder="Ej: 60000"></div>
+        <div class="fg"><label class="flab">WhatsApp</label><input class="fii" id="nl-wa" placeholder="+595 9XX XXX XXX"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn bgh" onclick="closeM('mloc')">Cancelar</button><button class="btn bg" onclick="saveLoc()"><i class="ti ti-check"></i>Guardar</button></div>
+  </div>
+</div>
+
+<div class="mo" id="mturno">
+  <div class="md">
+    <div class="mh"><span class="mti"><i class="ti ti-calendar" style="color:var(--gold)"></i> Asignar turno</span><button class="mc2" onclick="closeM('mturno')"><i class="ti ti-x"></i></button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="flab">Local</label><select class="fs" id="nt-l"></select></div>
+        <div class="fg"><label class="flab">Motorista</label><select class="fs" id="nt-m"></select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Entrada</label><input type="time" class="fii" id="nt-e" value="19:00"></div>
+        <div class="fg"><label class="flab">Salida</label><input type="time" class="fii" id="nt-s" value="23:00"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="flab">Día</label><select class="fs" id="nt-d"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option></select></div>
+        <div class="fg"><label class="flab">Observación</label><input class="fii" id="nt-o" placeholder="Ninguna"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn bgh" onclick="closeM('mturno')">Cancelar</button><button class="btn bg" onclick="saveTurno()"><i class="ti ti-check"></i>Guardar</button></div>
+  </div>
+</div>
+
+<div class="mo" id="mfiltro">
+  <div class="md" style="width:340px">
+    <div class="mh"><span class="mti">Filtrar pedidos</span><button class="mc2" onclick="closeM('mfiltro')"><i class="ti ti-x"></i></button></div>
+    <div class="mb">
+      <div class="fg"><label class="flab">Estado</label><select class="fs" id="f-e"><option value="">Todos</option><option>Pendiente</option><option>En camino</option><option>Retirado</option><option>Entregado</option><option>Cancelado</option></select></div>
+      <div class="fg"><label class="flab">Motorista</label><select class="fs" id="f-m"><option value="">Todos</option></select></div>
+      <div class="fg"><label class="flab">Local</label><select class="fs" id="f-l"><option value="">Todos</option></select></div>
+    </div>
+    <div class="mf"><button class="btn bgh" onclick="closeM('mfiltro')">Limpiar</button><button class="btn bg" onclick="applyFilt()">Aplicar</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check" id="ticon"></i><span id="tmsg">Listo</span></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyArIc5bulglAx0zYXJbgJ4CADC4aaggTbw",
+  authDomain:"ultrabox-cargo.firebaseapp.com",
+  projectId:"ultrabox-cargo",
+  storageBucket:"ultrabox-cargo.firebasestorage.app",
+  messagingSenderId:"442301830652",
+  appId:"1:442301830652:web:11791bf8275553fcddce79"
+});
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// USUARIOS AUTORIZADOS
+const ADMINS = {
+  'casolaveron@ultrabox.com.py': {nombre:'Rubén Casola', ini:'RC'},
+  'cristian.vera@ultrabox.com.py': {nombre:'Cristian Vera', ini:'CV'},
+  'gisela.martinez@ultrabox.com.py': {nombre:'Gisela Martínez', ini:'GM'}
+};
+
+// AUTH STATE
+auth.onAuthStateChanged(function(user) {
+  if(user && ADMINS[user.email]) {
+    showApp(user);
+  } else if(user) {
+    auth.signOut();
+    showLoginErr('Tu usuario no tiene acceso al sistema.');
+  } else {
+    showLogin();
+  }
+});
+
+function showLogin() {
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('app-wrap').classList.remove('visible');
+}
+
+function showApp(user) {
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('app-wrap').classList.add('visible');
+  const admin = ADMINS[user.email];
+  document.getElementById('user-name').textContent = admin.nombre;
+  document.getElementById('user-av').textContent = admin.ini;
+  initListeners();
+}
+
+function showLoginErr(msg) {
+  const err = document.getElementById('login-err');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+// LOGIN
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const btn = document.getElementById('btn-login');
+  const err = document.getElementById('login-err');
+  err.style.display = 'none';
+  if(!email||!pass){ showLoginErr('Completá email y contraseña.'); return; }
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(function() { btn.disabled=false; btn.textContent='Ingresar al sistema'; })
+    .catch(function() { btn.disabled=false; btn.textContent='Ingresar al sistema'; showLoginErr('Email o contraseña incorrectos.'); });
+}
+
+function doLogout() {
+  auth.signOut().then(function(){ showToast('Sesión cerrada','ti-logout'); });
+}
+
+// HELPERS
+const gs = n => 'Gs ' + Math.round(n).toLocaleString('es-PY');
+const ini = n => n ? n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() : '?';
+const avcs = ['an','ago','agr','abl'];
+const avcol = i => avcs[i%4];
+const dotcol = e => e==='Activo'?'dg':e==='Libre'?'da':'dgr';
+const ebadge = e => { const m={'Pendiente':'bda','En camino':'bin','Retirado':'bwa','Entregado':'bsu','Cancelado':'bgr','Activo':'bsu','Libre':'bwa'}; return '<span class="badge '+(m[e]||'bgr')+'">'+e+'</span>'; };
+
+function showToast(msg,icon) {
+  icon = icon||'ti-check';
+  const t=document.getElementById('toast');
+  document.getElementById('tmsg').textContent=msg;
+  document.getElementById('ticon').className='ti '+icon;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// DATA
+let pedidos=[], motoristas=[], locales=[], turnos=[], ftipo='todos';
+
+function initListeners() {
+  db.collection('pedidos').orderBy('createdAt','desc').onSnapshot(snap=>{
+    pedidos=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPedidos(); updateSelects();
+  });
+  db.collection('motoristas').orderBy('nombre').onSnapshot(snap=>{
+    motoristas=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderMotoristas(); renderAsistencia(); updateSelects();
+  });
+  db.collection('locales').orderBy('nombre').onSnapshot(snap=>{
+    locales=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderLocales(); renderReportes(); updateSelects();
+  });
+  db.collection('turnos').onSnapshot(snap=>{
+    turnos=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCronograma();
+  });
+}
+
+function updateSelects() {
+  [['np-l','<option value="">Seleccionar...</option>'],['nt-l',''],['f-l','<option value="">Todos</option>'],['sel-loc','<option value="">— elegí un local —</option>']].forEach(([id,def])=>{
+    const el=document.getElementById(id); if(!el) return;
+    const v=el.value; el.innerHTML=def;
+    locales.forEach(l=>{const o=document.createElement('option');o.value=l.nombre;o.textContent=l.nombre;el.appendChild(o);});
+    el.value=v;
+  });
+  [['np-m','<option value="">Sin asignar</option>'],['nt-m',''],['nm-l','<option value="">Libre / rotativo</option>'],['f-m','<option value="">Todos</option>'],['sel-mot','<option value="">— elegí un motorista —</option>']].forEach(([id,def])=>{
+    const el=document.getElementById(id); if(!el) return;
+    const v=el.value; el.innerHTML=def;
+    motoristas.forEach(m=>{const o=document.createElement('option');o.value=m.nombre;o.textContent=m.nombre;el.appendChild(o);});
+    el.value=v;
+  });
+}
+
+function renderPedidos(filtrada) {
+  const src=filtrada!==undefined?filtrada:pedidos;
+  const f=ftipo==='todos'?src:src.filter(p=>p.tipo===ftipo);
+  const today=new Date().toDateString();
+  const lista=f.filter(p=>{if(!p.createdAt)return true;const d=p.createdAt.toDate?p.createdAt.toDate():new Date(p.createdAt);return d.toDateString()===today;});
+  const show=lista.length?lista:f;
+  document.getElementById('lp').innerHTML=show.length?show.map(p=>`
+    <div class="tr" onclick="editPedido('${p.id}')">
+      <span style="flex:0 0 52px;font-weight:600;color:var(--navy);font-family:'DM Mono',monospace;font-size:12px">#${p.num||'—'}</span>
+      <span style="flex:1.2">${p.local||'—'}</span>
+      <span style="flex:1.3">${p.cliente||'—'}</span>
+      <span style="flex:1;color:var(--muted)">${p.motorista||'<span style="color:var(--danger);font-weight:600">Sin asignar</span>'}</span>
+      <span style="flex:0 0 80px;text-align:right">${ebadge(p.estado||'Pendiente')}</span>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-package-off"></i><p>Sin pedidos hoy. Registrá el primero.</p></div>';
+  const sa=show.filter(p=>!p.motorista||p.estado==='Pendiente').length;
+  document.getElementById('m1').textContent=show.length;
+  document.getElementById('m2').textContent=show.filter(p=>p.estado==='En camino'||p.estado==='Retirado').length;
+  document.getElementById('m3').textContent=show.filter(p=>p.estado==='Entregado').length;
+  document.getElementById('m4').textContent=sa;
+  document.getElementById('bc-p').textContent=sa;
+  document.getElementById('pc').textContent=show.length+' pedidos hoy';
+  const act=motoristas.filter(m=>m.estado==='Activo').slice(0,7);
+  document.getElementById('lmt').innerHTML=act.length?act.map((m,i)=>`
+    <div class="tr" style="gap:10px">
+      <div class="dot ${dotcol(m.estado)}"></div>
+      <div class="av ${avcol(i)}">${ini(m.nombre)}</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:12.5px;color:var(--navy)">${m.nombre}</div><div style="font-size:11px;color:var(--muted)">${m.local||'Libre'} · desde ${m.entrada||'—'}</div></div>
+      <div style="text-align:right;font-size:11px;color:var(--muted)">${m.pedidosHoy||0} ped<br>${m.horasHoy||0}h</div>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-motorbike"></i><p>Sin motoristas activos</p></div>';
+}
+function filtT(t){ftipo=t;renderPedidos();}
+
+function renderMotoristas() {
+  const TH=20000;
+  const act=motoristas.filter(m=>m.estado==='Activo');
+  document.getElementById('ma1').textContent=act.length;
+  document.getElementById('ma2').textContent=motoristas.reduce((a,m)=>a+(m.pedidosHoy||0),0);
+  document.getElementById('ma3').textContent=motoristas.reduce((a,m)=>a+(m.horasHoy||0),0).toFixed(1)+'h';
+  document.getElementById('ma4').textContent=gs(act.reduce((a,m)=>a+((m.horasHoy||0)*TH),0));
+  document.getElementById('lm').innerHTML=motoristas.length?motoristas.map((m,i)=>`
+    <div class="tr">
+      <div class="dot ${dotcol(m.estado)}" style="margin-right:6px;flex-shrink:0"></div>
+      <div class="av ${avcol(i)}" style="margin-right:6px;flex-shrink:0">${ini(m.nombre)}</div>
+      <span style="flex:1.5;font-weight:600;color:var(--navy)">${m.nombre}</span>
+      <span style="flex:.9;color:var(--muted)">${m.tipo||'—'}</span>
+      <span style="flex:1.1;color:var(--muted)">${m.local||'Libre'}</span>
+      <span style="flex:.6;text-align:center">${m.pedidosHoy||0}</span>
+      <span style="flex:.7;text-align:center;font-family:'DM Mono',monospace">${m.horasHoy||0}h</span>
+      <span style="flex:.9;text-align:right;color:var(--success);font-weight:600">${gs((m.horasHoy||0)*TH)}</span>
+      <span style="flex:0 0 72px;text-align:right">${ebadge(m.estado||'Libre')}</span>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-users"></i><p>Sin motoristas. Agregá el primero.</p></div>';
+}
+
+function renderAsistencia() {
+  const TH=20000;
+  const act=motoristas.filter(m=>m.entrada&&m.estado==='Activo');
+  const tot=act.reduce((a,m)=>a+((m.horasHoy||0)*TH),0);
+  document.getElementById('as1').textContent=act.length;
+  document.getElementById('as2').textContent=act.reduce((a,m)=>a+(m.horasHoy||0),0).toFixed(1)+'h';
+  document.getElementById('as3').textContent=gs(tot);
+  document.getElementById('as4').textContent=gs(tot*6);
+  document.getElementById('tdtotal').textContent=gs(tot);
+  document.getElementById('la').innerHTML=motoristas.filter(m=>m.entrada).length?motoristas.filter(m=>m.entrada).map((m,i)=>`
+    <div class="tr">
+      <div class="av ${avcol(i)}" style="margin-right:8px;flex-shrink:0">${ini(m.nombre)}</div>
+      <span style="flex:1.5;font-weight:600;color:var(--navy)">${m.nombre}</span>
+      <span style="flex:1.1;color:var(--muted)">${m.local||'Libre'}</span>
+      <span style="flex:.7;text-align:center;font-family:'DM Mono',monospace">${m.entrada||'—'}</span>
+      <span style="flex:.7;text-align:center;color:var(--muted)">${m.salida||'—'}</span>
+      <span style="flex:.6;text-align:center">${m.horasHoy||0}h</span>
+      <span style="flex:.6;text-align:center">${m.pedidosHoy||0}</span>
+      <span style="flex:.9;text-align:right;color:var(--success);font-weight:600">${gs((m.horasHoy||0)*TH)}</span>
+      <span style="flex:0 0 72px;text-align:right">${m.frecPago==='Diario'?'<span class="badge bgo">Diario</span>':m.frecPago==='Semanal'?'<span class="badge bin">Semanal</span>':'<span class="badge bgr">Mensual</span>'}</span>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-clock"></i><p>Sin asistencia registrada hoy</p></div>';
+}
+
+function renderCronograma() {
+  const dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const ids=['crono-lun','tmar','tmie','tjue','tvie','tsab','tdom'];
+  dias.forEach((dia,i)=>{
+    const dt=turnos.filter(t=>t.dia===dia);
+    const el=document.getElementById(i===0?'crono-lun':ids[i]); if(!el) return;
+    el.innerHTML=dt.length?dt.map(t=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #F0F2F5">
+        <div style="flex:1.3;font-weight:600;font-size:13px;color:var(--navy)">${t.local}</div>
+        <div style="flex:1.5;font-size:12.5px">${t.motorista}</div>
+        <div style="flex:0 0 120px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">${t.entrada} - ${t.salida}</div>
+        <div style="flex:1;font-size:11px;color:var(--muted)">${t.obs||'—'}</div>
+      </div>`).join(''):'<div class="empty"><i class="ti ti-calendar-off"></i><p>Sin turnos para este día</p></div>';
+  });
+}
+
+function renderReportes() {
+  if(!locales.length){document.getElementById('lrep').innerHTML='<div class="empty"><i class="ti ti-file-off"></i><p>Sin locales registrados</p></div>';return;}
+  let tf=0;
+  document.getElementById('lrep').innerHTML=locales.map(l=>{
+    const pl=pedidos.filter(p=>p.local===l.nombre&&p.estado==='Entregado').length;
+    const tot=l.modelo==='hora'?(l.horas||0)*(l.tarifa||0)+(l.fee||0):pl*(l.tarifa||0)+(l.fee||0);
+    tf+=tot;
+    return`<div class="tr"><span style="flex:1.5;font-weight:600;color:var(--navy)">${l.nombre}</span><span style="flex:.6;text-align:center">${pl}</span><span style="flex:.7;text-align:center">${l.modelo==='hora'?(l.horas||0)+'h':'—'}</span><span style="flex:.8;text-align:center;color:var(--muted)">${gs(l.tarifa||0)}</span><span style="flex:1;text-align:center;font-weight:600;color:var(--navy)">${gs(tot)}</span><span style="flex:0 0 80px;text-align:right">${ebadge(l.estadoCobro||'Pendiente')}</span></div>`;
+  }).join('');
+  const pm=motoristas.reduce((a,m)=>a+(m.sueldo||0),0);
+  document.getElementById('rp1').textContent=pedidos.filter(p=>p.estado==='Entregado').length;
+  document.getElementById('rp2').textContent=gs(tf);
+  document.getElementById('rp3').textContent=gs(pm);
+  document.getElementById('rp4').textContent=gs(tf-pm);
+}
+
+function renderLocales() {
+  document.getElementById('lloc').innerHTML=locales.length?locales.map((l,i)=>`
+    <div class="tr" style="gap:12px">
+      <div class="av ${avcol(i)}" style="flex-shrink:0">${ini(l.nombre)}</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--navy)">${l.nombre}</div><div style="font-size:11px;color:var(--muted)">${l.tipo==='gastro'?'Gastronomía':'Tienda'} · ${l.modelo==='hora'?'por hora':'por pedido'} · ${gs(l.tarifa||0)} · fee ${gs(l.fee||0)}/mes</div></div>
+      <span class="badge ${l.tipo==='gastro'?'bgo':'bin'}">${l.tipo==='gastro'?'Gastro':'Tienda'}</span>
+      <span class="badge bsu">Activo</span>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-building-store"></i><p>Sin locales. Agregá el primero.</p></div>';
+}
+
+// GUARDAR
+function savePed() {
+  const l=document.getElementById('np-l').value, c=document.getElementById('np-c').value, d=document.getElementById('np-d').value;
+  if(!l||!c||!d){showToast('Completá local, cliente y dirección','ti-alert-triangle');return;}
+  const m=document.getElementById('np-m').value;
+  const num=pedidos.length+1;
+  db.collection('pedidos').add({num,local:l,tipo:document.getElementById('np-t').value,cliente:c,dir:d,pago:document.getElementById('np-pg').value,motorista:m,estado:m?'En camino':'Pendiente',obs:document.getElementById('np-o').value,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  .then(()=>{closeM('mpedido');['np-l','np-c','np-d','np-o'].forEach(id=>document.getElementById(id).value='');showToast('Pedido #'+num+' registrado');});
+}
+
+function saveMot() {
+  const n=document.getElementById('nm-n').value;
+  if(!n){showToast('Ingresá el nombre','ti-alert-triangle');return;}
+  db.collection('motoristas').add({nombre:n,tipo:document.getElementById('nm-t').value,local:document.getElementById('nm-l').value||'Libre',sueldo:parseInt(document.getElementById('nm-s').value)||0,combustible:parseInt(document.getElementById('nm-cb').value)||0,telefono:document.getElementById('nm-tel').value,frecPago:document.getElementById('nm-f').value,estado:'Libre',entrada:'',salida:'',pedidosHoy:0,horasHoy:0,adelantos:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  .then(()=>{closeM('mmot');document.getElementById('nm-n').value='';showToast(n+' agregado al equipo');});
+}
+
+function saveLoc() {
+  const n=document.getElementById('nl-n').value;
+  if(!n){showToast('Ingresá el nombre del local','ti-alert-triangle');return;}
+  db.collection('locales').add({nombre:n,tipo:document.getElementById('nl-t').value,modelo:document.getElementById('nl-m').value,tarifa:parseInt(document.getElementById('nl-tf').value)||30000,fee:parseInt(document.getElementById('nl-fe').value)||60000,whatsapp:document.getElementById('nl-wa').value,estadoCobro:'Pendiente',horas:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  .then(()=>{closeM('mloc');document.getElementById('nl-n').value='';showToast(n+' registrado');});
+}
+
+function saveTurno() {
+  db.collection('turnos').add({local:document.getElementById('nt-l').value,motorista:document.getElementById('nt-m').value,dia:document.getElementById('nt-d').value,entrada:document.getElementById('nt-e').value,salida:document.getElementById('nt-s').value,obs:document.getElementById('nt-o').value})
+  .then(()=>{closeM('mturno');showToast('Turno asignado');});
+}
+
+function pedidoLocal() {
+  const loc=document.getElementById('sel-loc').value, c=document.getElementById('lv-cli').value, d=document.getElementById('lv-dir').value;
+  if(!loc){showToast('Seleccioná un local','ti-alert-triangle');return;}
+  if(!c||!d){showToast('Completá cliente y dirección','ti-alert-triangle');return;}
+  const lData=locales.find(l=>l.nombre===loc);
+  const mot=motoristas.find(m=>m.local===loc&&m.estado==='Activo');
+  const num=pedidos.length+1;
+  db.collection('pedidos').add({num,local:loc,tipo:lData?.tipo||'gastro',cliente:c,dir:d,pago:document.getElementById('lv-pago').value,motorista:mot?.nombre||'',estado:mot?'En camino':'Pendiente',obs:document.getElementById('lv-obs').value,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  .then(()=>{['lv-cli','lv-dir','lv-obs'].forEach(id=>document.getElementById(id).value='');showToast('Pedido enviado · '+loc);loadLocView();});
+}
+
+function loadMotView() {
+  const n=document.getElementById('sel-mot').value;
+  const m=motoristas.find(x=>x.nombre===n);
+  if(!m){return;}
+  document.getElementById('mv-local').textContent=(m.local||'Sin local asignado')+' · '+(m.estado==='Activo'?'turno activo':'inactivo');
+  const cc=document.getElementById('mv-checkin');
+  if(m.entrada&&m.estado==='Activo') {
+    cc.style.border='2px solid var(--success)';cc.style.background='var(--success-bg)';
+    cc.innerHTML='<div style="font-size:22px;margin-bottom:4px">✅</div><div style="font-size:20px;font-weight:600;font-family:\'DM Mono\',monospace;color:var(--navy)">'+m.entrada+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Entrada registrada</div><button class="btn bd" style="width:100%;justify-content:center;margin-top:10px;font-size:12px" onclick="regSalida(\''+m.id+'\')"><i class="ti ti-logout"></i>Registrar salida</button>';
+  } else {
+    cc.style.border='2px dashed var(--border)';cc.style.background='#F5F7FA';
+    cc.innerHTML='<div style="font-size:22px;margin-bottom:4px">⏰</div><div style="font-size:13px;color:var(--muted)">Sin turno activo</div><button class="btn bs" style="width:100%;justify-content:center;margin-top:10px;font-size:12px" onclick="regEntrada(\''+m.id+'\')"><i class="ti ti-login"></i>Registrar entrada</button>';
+  }
+  const mp=pedidos.filter(p=>p.motorista===n);
+  document.getElementById('mv-pedidos').innerHTML=mp.length?mp.map(p=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;border-left:3px solid ${p.estado==='Entregado'?'var(--success)':'var(--gold)'}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><div><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase">Pedido #${p.num}</div><div style="font-size:14px;font-weight:600;color:var(--navy);margin:3px 0">${p.dir||'—'}</div><div style="font-size:12px;color:var(--muted)">${p.cliente} · ${p.pago}</div></div>${ebadge(p.estado||'Pendiente')}</div>
+      ${p.estado!=='Entregado'?'<div style="display:flex;gap:8px"><button class="btn bo" style="flex:1;justify-content:center;font-size:11px" onclick="updPed(\''+p.id+'\',\'Retirado\')"><i class="ti ti-package"></i>Retiré</button><button class="btn bs" style="flex:1;justify-content:center;font-size:11px" onclick="updPed(\''+p.id+'\',\'Entregado\')"><i class="ti ti-check"></i>Entregué</button></div>':''}
+    </div>`).join(''):'<div class="empty"><i class="ti ti-package"></i><p>Sin pedidos asignados</p></div>';
+}
+
+function loadLocView() {
+  const loc=document.getElementById('sel-loc').value;
+  if(!loc) return;
+  const mp=pedidos.filter(p=>p.local===loc);
+  document.getElementById('lv-peds').innerHTML=mp.length?mp.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F5F5;font-size:12px">
+      <div><div style="font-weight:600;color:var(--navy);font-family:'DM Mono',monospace">#${p.num}</div><div style="color:var(--muted);font-size:11px">${p.dir}</div></div>
+      ${ebadge(p.estado||'Pendiente')}
+    </div>`).join(''):'<div class="empty"><i class="ti ti-package"></i><p>Sin pedidos hoy</p></div>';
+}
+
+function regEntrada(id) {
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  db.collection('motoristas').doc(id).update({entrada:h,estado:'Activo',salida:'',horasHoy:0})
+  .then(()=>{showToast('Entrada registrada · '+h);setTimeout(loadMotView,500);});
+}
+
+function regSalida(id) {
+  const m=motoristas.find(x=>x.id===id);
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const parts=(m.entrada||'0:0').split(':').map(Number);
+  const mins=(now.getHours()*60+now.getMinutes())-(parts[0]*60+parts[1]);
+  const horas=Math.max(0,mins/60).toFixed(1);
+  db.collection('motoristas').doc(id).update({salida:h,estado:'Libre',horasHoy:parseFloat(horas)})
+  .then(()=>{showToast('Salida registrada · '+horas+'h');setTimeout(loadMotView,500);});
+}
+
+function updPed(id,estado) {
+  db.collection('pedidos').doc(id).update({estado})
+  .then(()=>{showToast('Pedido → '+estado.toLowerCase());setTimeout(loadMotView,500);});
+}
+
+function editPedido(id) {
+  const p=pedidos.find(x=>x.id===id); if(!p) return;
+  const ov=document.createElement('div');
+  ov.className='mo open';
+  ov.innerHTML='<div class="md" style="width:380px"><div class="mh"><span class="mti">Editar pedido #'+p.num+'</span><button class="mc2" onclick="this.closest(\'.mo\').remove()"><i class="ti ti-x"></i></button></div><div class="mb"><div class="fg"><label class="flab">Estado</label><select class="fs" id="ep-e"><option'+(p.estado==='Pendiente'?' selected':'')+'>Pendiente</option><option'+(p.estado==='En camino'?' selected':'')+'>En camino</option><option'+(p.estado==='Retirado'?' selected':'')+'>Retirado</option><option'+(p.estado==='Entregado'?' selected':'')+'>Entregado</option><option'+(p.estado==='Cancelado'?' selected':'')+'>Cancelado</option></select></div><div class="fg"><label class="flab">Motorista</label><select class="fs" id="ep-m"><option value="">Sin asignar</option>'+motoristas.map(m=>'<option'+(m.nombre===p.motorista?' selected':'')+'>'+m.nombre+'</option>').join('')+'</select></div></div><div class="mf"><button class="btn bgh" onclick="this.closest(\'.mo\').remove()">Cancelar</button><button class="btn bg" onclick="db.collection(\'pedidos\').doc(\''+id+'\').update({estado:document.getElementById(\'ep-e\').value,motorista:document.getElementById(\'ep-m\').value}).then(()=>{this.closest(\'.mo\').remove();showToast(\'Pedido actualizado\');})">Guardar</button></div></div>';
+  document.body.appendChild(ov);
+}
+
+function exportCSV() {
+  let csv='Local,Tipo,Pedidos,Horas,Tarifa,Fee,Total,Estado\n';
+  locales.forEach(l=>{const pl=pedidos.filter(p=>p.local===l.nombre&&p.estado==='Entregado').length;const tot=l.modelo==='hora'?(l.horas||0)*(l.tarifa||0)+(l.fee||0):pl*(l.tarifa||0)+(l.fee||0);csv+=l.nombre+','+l.tipo+','+pl+','+(l.horas||0)+','+l.tarifa+','+l.fee+','+tot+','+(l.estadoCobro||'Pendiente')+'\n';});
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='ultrabox-reporte-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();showToast('Reporte exportado');
+}
+
+function applyFilt() {
+  const e=document.getElementById('f-e').value,m=document.getElementById('f-m').value,l=document.getElementById('f-l').value;
+  let f=[...pedidos];
+  if(e)f=f.filter(p=>p.estado===e);
+  if(m)f=f.filter(p=>p.motorista===m);
+  if(l)f=f.filter(p=>p.local===l);
+  closeM('mfiltro');renderPedidos(f);
+}
+
+// NAV
+const TITLES={pedidos:'Pedidos del día',motoristas:'Motoristas',asistencia:'Asistencia y liquidación',cronograma:'Cronograma semanal',reportes:'Reportes y facturación',locales:'Locales registrados',mview:'Vista del motorista',lview:'Vista del local'};
+function nav(id,btn) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('ptitle').textContent=TITLES[id]||id;
+}
+
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function stab(id,btn){
+  btn.closest('.card').querySelectorAll('.tabc').forEach(t=>t.classList.remove('active'));
+  btn.closest('.card').querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+
+setInterval(()=>{},1000);
+const dias2=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const meses2=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const hoy2=new Date();
+document.getElementById('pdate').textContent=dias2[hoy2.getDay()]+', '+hoy2.getDate()+' de '+meses2[hoy2.getMonth()]+' '+hoy2.getFullYear();
+</script>
+</body>
+</html>
